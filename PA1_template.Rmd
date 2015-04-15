@@ -10,6 +10,7 @@ output:
 ```{r load_and_preprocess}
 unzip("activity.zip")
 activity <- read.csv("activity.csv")
+activity <- activity[complete.cases(activity),]
 ```
 
 
@@ -17,25 +18,29 @@ activity <- read.csv("activity.csv")
 ## What is mean total number of steps taken per day?
 
 ```{r dialy_steps, message=FALSE}
-library(sqldf)
-daily_steps <- sqldf("select date, sum(steps) total_steps from activity where steps != 'NA' and date != 'NA' group by date order by date")
-daily_steps
-hist(daily_steps$total_steps,  breaks = 10 ,col="red", xlab = "Total Daily Steps", main = "Histogram of Total Daily Steps")
+# library(sqldf)
+# daily_steps <- sqldf("select date, sum(steps) total_steps from activity where steps != 'NA' and date != 'NA' group by date order by date")
+# daily_steps
+# hist(daily_steps$total_steps,  breaks = 10 ,col="red", xlab = "Total Daily Steps", main = "Histogram of Total Daily Steps")
 
 ```
 
 ```{r dialy_steps_2, message=FALSE}
-# library(plyr)
-# activity_2 <- activity[complete.cases(activity),]
-# daily_steps_2 <- ddply(activity_2, c("date"), summarise, total_steps = sum(steps))
-# daily_steps_2
-# hist(daily_steps_2$total_steps,  breaks = 10 ,col="red", xlab = "Total Daily Steps", main = "Histogram of Total Daily Steps")
-
+library(plyr)
+daily_steps <- ddply(activity, c("date"), summarise, total_steps = sum(steps))
+daily_steps
+hist(daily_steps$total_steps,  breaks = 10 ,col="red", xlab = "Total Daily Steps", main = "Histogram of Total Daily Steps")
+mean(daily_steps$total_steps)
+median(daily_steps$total_steps)
 ```
 
 
 
 ## What is the average daily activity pattern?
+```{r activity_pattern}
+activity_pattern <- ddply(activity, c("interval"), summarize, average_steps = mean(steps))
+plot(activity_pattern, type="l", col="red", xlab="Time Interval", ylab="Average Steps", main="Average Steps Taken per Time Interval")
+```
 
 
 
