@@ -92,21 +92,10 @@ hist(daily_steps$total_steps,  breaks = 10 ,col="red", xlab = "Total Daily Steps
 ![](PA1_template_files/figure-html/dialy_steps_2-1.png) 
 
 ```r
-mean(daily_steps$total_steps)
+mean_daily_steps <- prettyNum(round(mean(daily_steps$total_steps), 0), big.mark = ",")
+median_daily_steps <- prettyNum(median(daily_steps$total_steps), big.mark = ",")
 ```
-
-```
-## [1] 10766.19
-```
-
-```r
-median(daily_steps$total_steps)
-```
-
-```
-## [1] 10765
-```
-
+The averge number of steps taken was 10,766 and the median was 10,765.
 
 
 ## What is the average daily activity pattern?
