@@ -30,10 +30,10 @@ library(plyr)
 daily_steps <- ddply(activity, c("date"), summarise, total_steps = sum(steps))
 daily_steps
 hist(daily_steps$total_steps,  breaks = 10 ,col="red", xlab = "Total Daily Steps", main = "Histogram of Total Daily Steps")
-mean(daily_steps$total_steps)
-median(daily_steps$total_steps)
+mean_daily_steps <- prettyNum(round(mean(daily_steps$total_steps), 0), big.mark = ",")
+median_daily_steps <- prettyNum(median(daily_steps$total_steps), big.mark = ",")
 ```
-
+The averge number of steps taken was `r mean_daily_steps` and the median was `r median_daily_steps`.
 
 
 ## What is the average daily activity pattern?
