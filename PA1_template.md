@@ -28,23 +28,25 @@ The following histogram shows the distribution of frequencies of the number of s
 
 ```r
 library(plyr)
-daily_steps <- subset(ddply(activity, c("date"), summarise, total_steps = sum(steps, na.rm = TRUE)), total_steps != 0)
+# summarize the data by date
+daily_steps <- ddply(activity, c("date"), summarise, total_steps = sum(steps, na.rm = TRUE))
+
+# create histogram
 hist(daily_steps$total_steps,  breaks = 20 ,col="blue", xlab = "Total Daily Steps", main = "Histogram of Total Daily Steps")
 ```
 
 ![](PA1_template_files/figure-html/dialy_steps-1.png) 
 
-```r
-mean_daily_steps <- prettyNum(round(mean(daily_steps$total_steps), 0), big.mark = ",")
-median_daily_steps <- prettyNum(median(daily_steps$total_steps), big.mark = ",")
-```
-The average number of steps taken was 10,766 and the median was 10,765.
+
+
+The average number of steps taken was 9,354 and the median was 10,395.
 
 ## What is the average daily activity pattern?
 The following chart
 
 ```r
-activity_pattern <- subset(ddply(activity, c("interval"), summarize, average_steps = mean(steps, na.rm = TRUE)),  average_steps != 0)
+#activity_pattern <- subset(ddply(activity, c("interval"), summarize, average_steps = mean(steps, na.rm = TRUE)),  average_steps != 0)
+activity_pattern <- ddply(activity, c("interval"), summarize, average_steps = mean(steps, na.rm = TRUE))
 plot(activity_pattern, type="l", col="blue", xlab="Time Interval", ylab="Average Steps", main="Average Steps Taken per Time Interval")
 ```
 
@@ -52,9 +54,10 @@ plot(activity_pattern, type="l", col="blue", xlab="Time Interval", ylab="Average
 
 ```r
 max_steps <- activity_pattern[with(activity_pattern, order(-average_steps)),][1,]
-max_interval <- prettyNum(max_steps$interval[1], big.mark = ",")
-max_avg <- prettyNum(round(max_steps$average_steps[1], 0), big.mark = ",")
 ```
+
+
+
 The interval with the highest average number of steps was 835 with an average of 206 steps.
 
 ## Imputing missing values
@@ -62,19 +65,20 @@ The interval with the highest average number of steps was 835 with an average of
 
 
 ```r
+# get the median number of steps per interval
 msbi <- ddply(activity, c("interval"), summarize, median_steps = median(steps, na.rm = TRUE))
-activity_2 <- data.frame(interval = activity$interval, date = activity$date, steps=msbi[match(activity$interval, msbi$interval), 2])
+
+# create a new data frame replacing NA values with the meidan value for that interval
+activity_2 <- data.frame(interval = activity$interval, date = activity$date, steps=ifelse(is.na(activity$steps), msbi[match(activity$interval, msbi$interval), 2], activity$steps), steps_old = activity$steps)
+
+# summarize the data by date
 daily_steps_2 <- subset(ddply(activity_2, c("date"), summarize, total_steps = sum(steps, na.rm = TRUE)), total_steps != 0)
 hist(daily_steps$total_steps,  breaks = 20 ,col="blue", xlab = "Total Daily Steps", main = "Histogram of Total Daily Steps")
 ```
 
 ![](PA1_template_files/figure-html/Imputing_values-1.png) 
 
-```r
-mean_daily_steps_2 <- prettyNum(round(mean(daily_steps_2$total_steps), 0), big.mark = ",")
-median_daily_steps_2 <- prettyNum(median(daily_steps_2$total_steps), big.mark = ",")
-```
-The average number of steps taken was 1,141 and the median was 1,141.
 
+The average number of steps taken was 9,504 (a change of 150) and the median was 10,395 (a change of 0).
 
 ## Are there differences in activity patterns between weekdays and weekends?

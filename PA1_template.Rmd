@@ -33,40 +33,64 @@ The data set that was used for the analysis is the one that was included in the 
 The following histogram shows the distribution of frequencies of the number of steps taken each day:
 ```{r dialy_steps, message=FALSE}
 library(plyr)
-daily_steps <- subset(ddply(activity, c("date"), summarise, total_steps = sum(steps, na.rm = TRUE)), total_steps != 0)
+# summarize the data by date
+daily_steps <- ddply(activity, c("date"), summarise, total_steps = sum(steps, na.rm = TRUE))
+
+# create histogram
 hist(daily_steps$total_steps,  breaks = 20 ,col="blue", xlab = "Total Daily Steps", main = "Histogram of Total Daily Steps")
+```
+
+```{r dialy_steps_details, echo=FALSE}
 mean_daily_steps <- prettyNum(round(mean(daily_steps$total_steps), 0), big.mark = ",")
 median_daily_steps <- prettyNum(median(daily_steps$total_steps), big.mark = ",")
 ```
+
 The average number of steps taken was `r mean_daily_steps` and the median was `r median_daily_steps`.
 
 ## What is the average daily activity pattern?
 The following chart
 ```{r activity_pattern}
-activity_pattern <- subset(ddply(activity, c("interval"), summarize, average_steps = mean(steps, na.rm = TRUE)),  average_steps != 0)
+# simmarize the data by interval
+activity_pattern <- ddply(activity, c("interval"), summarize, average_steps = mean(steps, na.rm = TRUE))
+
+# create time series plot by interval
 plot(activity_pattern, type="l", col="blue", xlab="Time Interval", ylab="Average Steps", main="Average Steps Taken per Time Interval")
 
+# find peak interval
 max_steps <- activity_pattern[with(activity_pattern, order(-average_steps)),][1,]
+```
+
+```{r activity_pattern_details, echo=FALSE}
 max_interval <- prettyNum(max_steps$interval[1], big.mark = ",")
 max_avg <- prettyNum(round(max_steps$average_steps[1], 0), big.mark = ",")
-
 ```
+
+
 The interval with the highest average number of steps was `r max_interval` with an average of `r max_avg` steps.
 
 ## Imputing missing values
 
 
 ```{r Imputing_values}
-#msbi <- ddply(activity, c("interval"), summarize, median_steps = median(steps, na.rm = TRUE))
-msbi <- ddply(activity[complete.cases(activity),], c("interval"), summarize, median_steps = median(steps, na.rm = TRUE))
-activity_2 <- data.frame(interval = activity$interval, date = activity$date, steps=msbi[match(activity$interval, msbi$interval), 2])
+# get the median number of steps per interval
+msbi <- ddply(activity, c("interval"), summarize, median_steps = median(steps, na.rm = TRUE))
+
+# create a new data frame replacing NA values with the meidan value for that interval
+activity_2 <- data.frame(interval = activity$interval, date = activity$date, steps=ifelse(is.na(activity$steps), msbi[match(activity$interval, msbi$interval), 2], activity$steps), steps_old = activity$steps)
+
+# summarize the data by date
 daily_steps_2 <- subset(ddply(activity_2, c("date"), summarize, total_steps = sum(steps, na.rm = TRUE)), total_steps != 0)
+
+# Generate histogram
 hist(daily_steps$total_steps,  breaks = 20 ,col="blue", xlab = "Total Daily Steps", main = "Histogram of Total Daily Steps")
+```
+
+```{r Imputing_values_details, echo=FALSE}
 mean_daily_steps_2 <- prettyNum(round(mean(daily_steps_2$total_steps), 0), big.mark = ",")
 median_daily_steps_2 <- prettyNum(median(daily_steps_2$total_steps), big.mark = ",")
-
+mean_diff <- prettyNum(round(mean(daily_steps_2$total_steps) - mean(daily_steps$total_steps), 0), big.mark = ",")
+median_diff <- prettyNum(median(daily_steps_2$total_steps) - median(daily_steps$total_steps), big.mark = ",")
 ```
-The average number of steps taken was `r mean_daily_steps_2` and the median was `r median_daily_steps_2`.
-
+The average number of steps taken was `r mean_daily_steps_2` (a change of `r mean_diff`) and the median was `r median_daily_steps_2` (a change of `r median_diff`).
 
 ## Are there differences in activity patterns between weekdays and weekends?
