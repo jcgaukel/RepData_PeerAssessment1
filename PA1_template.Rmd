@@ -1,15 +1,20 @@
 ---
 title: 'Reproducible Research: Peer Assessment 1'
 output:
-  html_document:
-    keep_md: yes
-  pdf_document: default
-  word_document: default
+html_document:
+keep_md: yes
+pdf_document: default
+word_document: default
 ---
 
 ## Loading and preprocessing the data
-```{r load_and_preprocess}
-library("tools")
+```{r load_and_preprocess, message=FALSE, warning=FALSE}
+# loading all required libraries
+library(tools)
+library(plyr)
+library(ggplot2)
+library(gridExtra)
+
 
 # file informationn
 filelink <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
@@ -25,22 +30,35 @@ if (!file.exists(filename)|md5sum(filename) != filechecksum) {
 # unzip and read in CSV file and remove incomplete cases
 unzip("activity.zip")
 activity <- read.csv("activity.csv")
-#activity <- activity[complete.cases(activity),]
 ```
 The data set that was used for the analysis is the one that was included in the [RepData_PeerAssessment1 Git repository](https://github.com/rdpeng/RepData_PeerAssessment1) (commit 80edf39c3bb508fee88e3394542f967dd3fd3270).  It can also be downloaded from [`r filelink`](`r filelink`).
 
 ## What is mean total number of steps taken per day?
 The following histogram shows the distribution of frequencies of the number of steps taken each day:
 ```{r dialy_steps, message=FALSE}
-library(plyr)
 # summarize the data by date
-daily_steps <- ddply(activity, c("date"), summarise, total_steps = sum(steps, na.rm = TRUE))
+daily_steps <- ddply(activity,
+                     c("date"),
+                     summarise,
+                     total_steps = sum(steps,
+                                       na.rm = TRUE)
+                     )
 
 # create histogram
-hist(daily_steps$total_steps,  breaks = 20 ,col="blue", xlab = "Total Daily Steps", main = "Histogram of Total Daily Steps")
+ggplot(daily_steps, 
+       aes(x=total_steps)
+       ) +
+        geom_histogram(colour = "black",
+                       fill = "blue"
+                       )+ 
+        labs(title = "Histogram of Total Daily Steps", 
+             y = "Frequency",
+             x = "Total Daily Steps"
+             )
+
 ```
 
-```{r dialy_steps_details, echo=FALSE}
+```{r dialy_steps_details, message=FALSE, echo=FALSE}
 mean_daily_steps <- prettyNum(round(mean(daily_steps$total_steps), 0), big.mark = ",")
 median_daily_steps <- prettyNum(median(daily_steps$total_steps), big.mark = ",")
 ```
@@ -51,13 +69,33 @@ The average number of steps taken was `r mean_daily_steps` and the median was `r
 The following chart
 ```{r activity_pattern}
 # simmarize the data by interval
-activity_pattern <- ddply(activity, c("interval"), summarize, average_steps = mean(steps, na.rm = TRUE))
+activity_pattern <- ddply(activity,
+                          c("interval"),
+                          summarize,
+                          average_steps = mean(steps,
+                                               na.rm = TRUE
+                                               )
+                          )
 
 # create time series plot by interval
-plot(activity_pattern, type="l", col="blue", xlab="Time Interval", ylab="Average Steps", main="Average Steps Taken per Time Interval")
+ggplot(activity_pattern,
+       aes(x = interval,
+           y = average_steps
+           )
+       ) +
+        geom_line(colour = "blue",
+                  size = 1
+                  ) + 
+        labs(title = "Average Steps per Interval", 
+             y = "Average Steps",
+             x = "Interval"
+             ) 
+
+
 
 # find peak interval
 max_steps <- activity_pattern[with(activity_pattern, order(-average_steps)),][1,]
+max_steps
 ```
 
 ```{r activity_pattern_details, echo=FALSE}
@@ -71,18 +109,49 @@ The interval with the highest average number of steps was `r max_interval` with 
 ## Imputing missing values
 
 
-```{r Imputing_values}
+```{r Imputing_values, message=FALSE}
 # get the median number of steps per interval
-msbi <- ddply(activity, c("interval"), summarize, median_steps = median(steps, na.rm = TRUE))
+msbi <- ddply(activity,
+              c("interval"),
+              summarize,
+              median_steps = median(steps,
+                                    na.rm = TRUE
+                                    )
+              )
 
 # create a new data frame replacing NA values with the meidan value for that interval
-activity_2 <- data.frame(interval = activity$interval, date = activity$date, steps=ifelse(is.na(activity$steps), msbi[match(activity$interval, msbi$interval), 2], activity$steps), steps_old = activity$steps)
+activity_2 <- data.frame(interval = activity$interval,
+                         date = activity$date, 
+                         steps=ifelse(is.na(activity$steps), 
+                                      msbi[match(activity$interval, msbi$interval), 2],
+                                      activity$steps
+                                      ), 
+                         steps_old = activity$steps
+                         )
 
 # summarize the data by date
-daily_steps_2 <- subset(ddply(activity_2, c("date"), summarize, total_steps = sum(steps, na.rm = TRUE)), total_steps != 0)
+daily_steps_2 <- subset(ddply(activity_2, 
+                              c("date"),
+                              summarize, 
+                              total_steps = sum(steps,
+                                                na.rm = TRUE
+                                                )
+                              ),
+                        total_steps != 0
+                        )
 
 # Generate histogram
-hist(daily_steps$total_steps,  breaks = 20 ,col="blue", xlab = "Total Daily Steps", main = "Histogram of Total Daily Steps")
+ggplot(daily_steps_2, 
+       aes(x=total_steps)
+       ) +
+        geom_histogram(colour = "black",
+                       fill = "blue"
+                       )+ 
+        labs(title = "Histogram of Total Daily Steps", 
+             y = "Frequency",
+             x = "Total Daily Steps"
+             )
+
 ```
 
 ```{r Imputing_values_details, echo=FALSE}
@@ -94,3 +163,71 @@ median_diff <- prettyNum(median(daily_steps_2$total_steps) - median(daily_steps$
 The average number of steps taken was `r mean_daily_steps_2` (a change of `r mean_diff`) and the median was `r median_daily_steps_2` (a change of `r median_diff`).
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+
+```{r weekday_vs_weekend, message=FALSE}
+# get day of week from date and check to see if it's a weekend or weekday
+activity_2$daytype <- ifelse(weekdays(as.Date(activity_2$date)) %in% c("Saturday","Sunday"),
+                             "Weekend", 
+                             "Weekday"
+                             )
+# simmarize the data by interval and day type
+activity_pattern_2 <- ddply(activity_2,
+                            c("daytype", "interval"),
+                            summarize,
+                            average_steps = mean(steps,
+                                                 na.rm = TRUE
+                                                 )
+                            )
+
+# generate weekday and weekend timeseries plots by interval
+p_weekday <- ggplot(subset(activity_pattern_2, 
+                           daytype == "Weekday", 
+                           select= c(interval, average_steps)
+                           ),
+                    aes(x = interval,
+                        y = average_steps
+                        )
+                    ) +
+        geom_line(color = "blue",
+                  size = 1
+                  ) + 
+        labs(title = "Average Steps per Interval for Weekdays", 
+             y = "Average Steps",
+             x = "Interval"
+             ) +
+        guides(color=guide_legend(title="Day Type")) +
+        theme(legend.position="bottom")
+
+p_weekend <- ggplot(subset(activity_pattern_2, 
+                           daytype == "Weekend", 
+                           select= c(interval, average_steps)
+                           ),
+                    aes(x = interval,
+                        y = average_steps
+                        )
+                    ) +
+        geom_line(color = "blue",
+                  size = 1
+                  ) + 
+        labs(title = "Average Steps per Interval for Weekends", 
+             y = "Average Steps",
+             x = "Interval"
+             ) +
+        guides(color=guide_legend(title="Day Type")) +
+        theme(legend.position="bottom")
+
+grid.arrange(p_weekday, p_weekend, nrow=2)
+
+```
+
+
+
+
+
+
+
+
+
+
+
