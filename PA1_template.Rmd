@@ -107,8 +107,7 @@ max_avg <- prettyNum(round(max_steps$average_steps[1], 0), big.mark = ",")
 The interval with the highest average number of steps was `r max_interval` with an average of `r max_avg` steps.
 
 ## Imputing missing values
-
-
+Many of the values were missing from the data set provided.  In order to fill in the missing values, the median value per interval was substituted for the missing values for the corresponding intervals.
 ```{r Imputing_values, message=FALSE}
 # get the median number of steps per interval
 msbi <- ddply(activity,
@@ -163,8 +162,7 @@ median_diff <- prettyNum(median(daily_steps_2$total_steps) - median(daily_steps$
 The average number of steps taken was `r mean_daily_steps_2` (a change of `r mean_diff`) and the median was `r median_daily_steps_2` (a change of `r median_diff`).
 
 ## Are there differences in activity patterns between weekdays and weekends?
-
-
+The following charts show the difference in activity for weekdays vs weekends (using the imputed data):
 ```{r weekday_vs_weekend, message=FALSE}
 # get day of week from date and check to see if it's a weekend or weekday
 activity_2$daytype <- ifelse(weekdays(as.Date(activity_2$date)) %in% c("Saturday","Sunday"),
@@ -218,16 +216,4 @@ p_weekend <- ggplot(subset(activity_pattern_2,
         theme(legend.position="bottom")
 
 grid.arrange(p_weekday, p_weekend, nrow=2)
-
 ```
-
-
-
-
-
-
-
-
-
-
-

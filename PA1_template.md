@@ -1,4 +1,11 @@
-# Reproducible Research: Peer Assessment 1
+---
+title: 'Reproducible Research: Peer Assessment 1'
+output:
+html_document:
+keep_md: yes
+pdf_document: default
+word_document: default
+---
 
 ## Loading and preprocessing the data
 
@@ -40,20 +47,19 @@ daily_steps <- ddply(activity,
                      )
 
 # create histogram
-dsh <- ggplot(daily_steps, 
-              aes(x=total_steps)
-              ) +
+ggplot(daily_steps, 
+       aes(x=total_steps)
+       ) +
         geom_histogram(colour = "black",
                        fill = "blue"
                        )+ 
         labs(title = "Histogram of Total Daily Steps", 
-                   y = "Frequency",
-                   x = "Total Daily Steps"
+             y = "Frequency",
+             x = "Total Daily Steps"
              )
-print(dsh)
 ```
 
-![](PA1_template_files/figure-html/dialy_steps-1.png) 
+![plot of chunk dialy_steps](figure/dialy_steps-1.png) 
 
 
 
@@ -73,23 +79,21 @@ activity_pattern <- ddply(activity,
                           )
 
 # create time series plot by interval
-dap <- ggplot(activity_pattern,
-              aes(x = interval,
-                  y = average_steps
-                  )
-              ) +
+ggplot(activity_pattern,
+       aes(x = interval,
+           y = average_steps
+           )
+       ) +
         geom_line(colour = "blue",
                   size = 1
                   ) + 
         labs(title = "Average Steps per Interval", 
-                   y = "Average Steps",
-                   x = "Interval"
+             y = "Average Steps",
+             x = "Interval"
              ) 
-        
-print(dap)
 ```
 
-![](PA1_template_files/figure-html/activity_pattern-1.png) 
+![plot of chunk activity_pattern](figure/activity_pattern-1.png) 
 
 ```r
 # find peak interval
@@ -108,8 +112,7 @@ max_steps
 The interval with the highest average number of steps was 835 with an average of 206 steps.
 
 ## Imputing missing values
-
-
+Many of the values were missing from the data set provided.  In order to fill in the missing values, the median value per interval was substituted for the missing values for the corresponding intervals.
 
 ```r
 # get the median number of steps per interval
@@ -143,27 +146,25 @@ daily_steps_2 <- subset(ddply(activity_2,
                         )
 
 # Generate histogram
-dsh_2 <- ggplot(daily_steps_2, 
-              aes(x=total_steps)
-              ) +
+ggplot(daily_steps_2, 
+       aes(x=total_steps)
+       ) +
         geom_histogram(colour = "black",
                        fill = "blue"
                        )+ 
         labs(title = "Histogram of Total Daily Steps", 
-                   y = "Frequency",
-                   x = "Total Daily Steps"
+             y = "Frequency",
+             x = "Total Daily Steps"
              )
-print(dsh_2)
 ```
 
-![](PA1_template_files/figure-html/Imputing_values-1.png) 
+![plot of chunk Imputing_values](figure/Imputing_values-1.png) 
 
 
 The average number of steps taken was 9,504 (a change of 150) and the median was 10,395 (a change of 0).
 
 ## Are there differences in activity patterns between weekdays and weekends?
-
-
+The following charts show the difference in activity for weekdays vs weekends (using the imputed data):
 
 ```r
 # get day of week from date and check to see if it's a weekend or weekday
@@ -173,12 +174,12 @@ activity_2$daytype <- ifelse(weekdays(as.Date(activity_2$date)) %in% c("Saturday
                              )
 # simmarize the data by interval and day type
 activity_pattern_2 <- ddply(activity_2,
-                          c("daytype", "interval"),
-                          summarize,
-                          average_steps = mean(steps,
-                                               na.rm = TRUE
-                                               )
-                          )
+                            c("daytype", "interval"),
+                            summarize,
+                            average_steps = mean(steps,
+                                                 na.rm = TRUE
+                                                 )
+                            )
 
 # generate weekday and weekend timeseries plots by interval
 p_weekday <- ggplot(subset(activity_pattern_2, 
@@ -220,15 +221,4 @@ p_weekend <- ggplot(subset(activity_pattern_2,
 grid.arrange(p_weekday, p_weekend, nrow=2)
 ```
 
-![](PA1_template_files/figure-html/weekday_vs_weekend-1.png) 
-
-
-
-
-
-
-
-
-
-
-
+![plot of chunk weekday_vs_weekend](figure/weekday_vs_weekend-1.png) 
