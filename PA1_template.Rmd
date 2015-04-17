@@ -7,8 +7,13 @@ pdf_document: default
 word_document: default
 ---
 
+```{r setup, include = FALSE}
+#opts_chunk$set(fig.width=10, message=FALSE, warnings=FALSE)
+opts_chunk$set(fig.width = 10)
+```
+
 ## Loading and preprocessing the data
-```{r load_and_preprocess, message=FALSE, warning=FALSE}
+```{r load_and_preprocess}
 # loading all required libraries
 library(tools)
 library(plyr)
@@ -35,7 +40,7 @@ The data set that was used for the analysis is the one that was included in the 
 
 ## What is mean total number of steps taken per day?
 The following histogram shows the distribution of frequencies of the number of steps taken each day:
-```{r dialy_steps, message=FALSE}
+```{r dialy_steps}
 # summarize the data by date
 daily_steps <- ddply(activity,
                      c("date"),
@@ -58,7 +63,7 @@ ggplot(daily_steps,
 
 ```
 
-```{r dialy_steps_details, message=FALSE, echo=FALSE}
+```{r dialy_steps_details, echo=FALSE}
 mean_daily_steps <- prettyNum(round(mean(daily_steps$total_steps), 0), big.mark = ",")
 median_daily_steps <- prettyNum(median(daily_steps$total_steps), big.mark = ",")
 ```
@@ -108,7 +113,7 @@ The interval with the highest average number of steps was `r max_interval` with 
 
 ## Imputing missing values
 Many of the values were missing from the data set provided.  In order to fill in the missing values, the median value per interval was substituted for the missing values for the corresponding intervals.
-```{r Imputing_values, message=FALSE}
+```{r Imputing_values}
 # get the median number of steps per interval
 msbi <- ddply(activity,
               c("interval"),
@@ -163,7 +168,7 @@ The average number of steps taken was `r mean_daily_steps_2` (a change of `r mea
 
 ## Are there differences in activity patterns between weekdays and weekends?
 The following charts show the difference in activity for weekdays vs weekends (using the imputed data):
-```{r weekday_vs_weekend, message=FALSE}
+```{r weekday_vs_weekend}
 # get day of week from date and check to see if it's a weekend or weekday
 activity_2$daytype <- ifelse(weekdays(as.Date(activity_2$date)) %in% c("Saturday","Sunday"),
                              "Weekend", 

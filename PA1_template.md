@@ -7,6 +7,8 @@ pdf_document: default
 word_document: default
 ---
 
+
+
 ## Loading and preprocessing the data
 
 ```r
@@ -57,6 +59,10 @@ ggplot(daily_steps,
              y = "Frequency",
              x = "Total Daily Steps"
              )
+```
+
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
 ```
 
 ![plot of chunk dialy_steps](figure/dialy_steps-1.png) 
@@ -156,6 +162,10 @@ ggplot(daily_steps_2,
              y = "Frequency",
              x = "Total Daily Steps"
              )
+```
+
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
 ```
 
 ![plot of chunk Imputing_values](figure/Imputing_values-1.png) 
