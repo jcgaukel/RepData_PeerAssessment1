@@ -9,7 +9,7 @@ word_document: default
 
 ```{r setup, include = FALSE}
 library(knitr)
-opts_chunk$set(message=FALSE, warning=FALSE, fig.width = 10)
+opts_chunk$set(message=FALSE, warning=FALSE, fig.width = 12)
 #opts_chunk$set(fig.width = 10)
 ```
 
