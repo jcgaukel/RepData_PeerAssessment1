@@ -19,7 +19,7 @@ library(ggplot2)
 library(gridExtra)
 
 
-# file informationn
+# file information
 filelink <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 filename <- "activity.zip"
 filechecksum <- "61e0c1f8c4a736ff1ab0f8863344b301"
@@ -59,10 +59,6 @@ ggplot(daily_steps,
              y = "Frequency",
              x = "Total Daily Steps"
              )
-```
-
-```
-## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
 ```
 
 ![plot of chunk dialy_steps](figure/dialy_steps-1.png) 
@@ -162,10 +158,6 @@ ggplot(daily_steps_2,
              y = "Frequency",
              x = "Total Daily Steps"
              )
-```
-
-```
-## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
 ```
 
 ![plot of chunk Imputing_values](figure/Imputing_values-1.png) 
