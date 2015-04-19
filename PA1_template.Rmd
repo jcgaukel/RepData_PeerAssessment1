@@ -8,8 +8,9 @@ word_document: default
 ---
 
 ```{r setup, include = FALSE}
-#opts_chunk$set(fig.width=10, message=FALSE, warnings=FALSE)
-opts_chunk$set(fig.width = 10)
+library(knitr)
+opts_chunk$set(message=FALSE, warning=FALSE, fig.width = 10)
+#opts_chunk$set(fig.width = 10)
 ```
 
 ## Loading and preprocessing the data
@@ -21,7 +22,7 @@ library(ggplot2)
 library(gridExtra)
 
 
-# file informationn
+# file information
 filelink <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 filename <- "activity.zip"
 filechecksum <- "61e0c1f8c4a736ff1ab0f8863344b301"
